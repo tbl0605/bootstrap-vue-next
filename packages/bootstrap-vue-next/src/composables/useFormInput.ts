@@ -11,9 +11,10 @@ import {
 } from 'vue'
 import {useAriaInvalid} from './useAriaInvalid'
 import {useId} from './useId'
-import {useDebounceFn, useFocus, useToNumber} from '@vueuse/core'
+import {useFocus, useToNumber} from '@vueuse/core'
 import type {CommonInputProps} from '../types/FormCommonInputProps'
 import {formGroupPluginKey} from '../utils/keys'
+import {useDebounceFn} from '../utils/debounce'
 import {useStateClass} from './useStateClass'
 
 export const useFormInput = (
@@ -46,9 +47,14 @@ export const useFormInput = (
     {maxWait: () => (modelModifiers.lazy === true ? NaN : debounceMaxWaitNumber.value)}
   )
 
-  const updateModelValue = (value: Numberish, force = false) => {
+  const updateModelValue = (value: Numberish, force = false, immediate = false) => {
     if (modelModifiers.lazy === true && force === false) return
-    internalUpdateModelValue(value)
+    if (immediate) {
+      internalUpdateModelValue.cancel()
+      modelValue.value = value
+    } else {
+      internalUpdateModelValue(value)
+    }
   }
 
   const {focused} = useFocus(input, {
@@ -103,15 +109,21 @@ export const useFormInput = (
   }
 
   const onBlur = (evt: Readonly<FocusEvent>) => {
-    if (!modelModifiers.lazy && !props.lazyFormatter && !modelModifiers.trim) return
+    if (
+      !modelModifiers.lazy &&
+      !props.lazyFormatter &&
+      !modelModifiers.trim &&
+      debounceNumber.value <= 0
+    )
+      return
 
     const {value} = evt.target as HTMLInputElement
     const formattedValue = _formatValue(value, evt, true)
 
     const nextModel = modelModifiers.trim ? formattedValue.trim() : formattedValue
     const needsForceUpdate = nextModel.length !== formattedValue.length
-    if (modelValue.value !== nextModel) {
-      updateModelValue(formattedValue, true)
+    if (modelValue.value !== nextModel || debounceNumber.value > 0) {
+      updateModelValue(formattedValue, true, true)
     }
     if (modelModifiers.trim && needsForceUpdate) {
       // The value is trimmed but there would still exist some white space
