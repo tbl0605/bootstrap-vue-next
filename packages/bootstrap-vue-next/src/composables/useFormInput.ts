@@ -50,7 +50,6 @@ export const useFormInput = (
   const updateModelValue = (value: Numberish, force = false, immediate = false) => {
     if (modelModifiers.lazy === true && force === false) return
     if (immediate) {
-      internalUpdateModelValue.cancel()
       modelValue.value = value
     } else {
       internalUpdateModelValue(value)
@@ -122,7 +121,9 @@ export const useFormInput = (
 
     const nextModel = modelModifiers.trim ? formattedValue.trim() : formattedValue
     const needsForceUpdate = nextModel.length !== formattedValue.length
-    if (modelValue.value !== nextModel || debounceNumber.value > 0) {
+    // Cancel before modelValue.value comparison and update
+    internalUpdateModelValue.cancel()
+    if (modelValue.value !== nextModel) {
       updateModelValue(formattedValue, true, true)
     }
     if (modelModifiers.trim && needsForceUpdate) {
