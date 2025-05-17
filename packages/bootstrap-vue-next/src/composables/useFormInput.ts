@@ -28,7 +28,7 @@ export const useFormInput = (
   const forceUpdateKey = ref(0)
 
   const computedId = useId(() => props.id, 'input')
-  const debounceNumber = useToNumber(() => props.debounce ?? 0)
+  const debounceNumber = useToNumber(() => props.debounce ?? 0, {nanToZero: true})
   const debounceMaxWaitNumber = useToNumber(() => props.debounceMaxWait ?? NaN)
 
   // This automatically adds the appropriate "for" attribute to a BFormGroup label
