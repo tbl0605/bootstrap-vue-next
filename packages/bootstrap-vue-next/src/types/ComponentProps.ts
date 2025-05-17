@@ -1249,6 +1249,7 @@ export interface BToastProps
   modelValue?: boolean | number
   noCloseButton?: boolean
   noHoverPause?: boolean
+  noProgress?: boolean
   noResumeOnHoverLeave?: boolean
   progressProps?: Omit<BProgressBarProps, 'label' | 'max' | 'value'>
   showOnPause?: boolean
@@ -1263,7 +1264,7 @@ export interface BPopoverProps extends TeleporterProps, ShowHideProps {
   click?: boolean
   closeOnHide?: boolean
   body?: string
-  customClass?: ClassValue
+  bodyClass?: ClassValue
   delay?:
     | number
     | Readonly<{
@@ -1289,6 +1290,7 @@ export interface BPopoverProps extends TeleporterProps, ShowHideProps {
   strategy?: Strategy
   target?: string | Readonly<ComponentPublicInstance> | Readonly<HTMLElement> | null
   title?: string
+  titleClass?: ClassValue
   tooltip?: boolean
   variant?: ColorVariant | null
 }
